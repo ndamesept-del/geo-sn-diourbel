@@ -1,0 +1,208 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Application de cartographie web des localités, routes, arrondissements et écoles du département de Diourbel.">
+  <title>Équipements scolaires · Diourbel</title>
+  <link rel="stylesheet" href="css/leaflet.css">
+  <link rel="stylesheet" href="css/app.css">
+</head>
+<body>
+  <div class="app-shell">
+    <header class="topbar">
+      <div class="brand">
+        <span class="flag" aria-hidden="true"><i></i><i>★</i><i></i></span>
+        <div>
+          <h1>Équipements scolaires <span>· Diourbel</span></h1>
+          <p>Projet Web SIG · Cartographie en ligne 2025</p>
+        </div>
+      </div>
+      <nav class="top-nav" aria-label="Navigation principale">
+        <button class="nav-tab active" id="nav-home" type="button">Accueil</button>
+        <button class="nav-tab" id="nav-about" type="button">À propos</button>
+        <button class="nav-tab" id="nav-catalog" type="button">Catalogue</button>
+        <button class="nav-tab" id="nav-geocode" type="button">Géocodage</button>
+        <button class="nav-tab" id="nav-download" type="button">Téléchargement</button>
+      </nav>
+      <div class="top-actions">
+        <span class="status" id="load-status"><i></i>Chargement des données</span>
+      </div>
+    </header>
+
+    <main class="workspace">
+      <aside class="sidebar" id="sidebar" aria-label="Panneau des couches">
+        <div class="mobile-handle" aria-hidden="true"></div>
+        <section class="sidebar-section intro">
+          <div class="eyebrow">Département de travail</div>
+          <div class="place-row">
+            <div>
+              <h2>Diourbel</h2>
+              <p>Région de Diourbel, Sénégal</p>
+            </div>
+            <button class="icon-button" id="fit-button" type="button" title="Recentrer sur Diourbel" aria-label="Recentrer sur Diourbel">⌖</button>
+          </div>
+          <div class="stats" aria-label="Résumé des données">
+            <div><strong id="school-count">57</strong><span>écoles</span></div>
+            <div><strong id="locality-count">384</strong><span>localités</span></div>
+            <div><strong id="district-count">2</strong><span>arrond.</span></div>
+          </div>
+        </section>
+
+        <section class="sidebar-section search-section">
+          <label for="feature-search">Rechercher un lieu ou une école</label>
+          <div class="search-box">
+            <span aria-hidden="true">⌕</span>
+            <input id="feature-search" type="search" placeholder="Ex. Ndindy, école…" autocomplete="off">
+            <button id="clear-search" type="button" title="Effacer" aria-label="Effacer la recherche">×</button>
+          </div>
+          <div class="search-results" id="search-results" hidden></div>
+        </section>
+
+        <section class="sidebar-section layers-section">
+          <div class="section-heading">
+            <h3>Gestion des couches</h3>
+            <button class="text-button" id="toggle-all" type="button">Tout masquer</button>
+          </div>
+          <div class="layer-list">
+            <label class="layer-row">
+              <input type="checkbox" data-layer="schools" checked>
+              <span class="swatch school-swatch">✦</span>
+              <span class="layer-name">Écoles</span>
+              <span class="count" id="school-layer-count">57</span>
+            </label>
+            <label class="layer-row">
+              <input type="checkbox" data-layer="localities" checked>
+              <span class="swatch locality-swatch"></span>
+              <span class="layer-name">Localités</span>
+              <span class="count" id="locality-layer-count">384</span>
+            </label>
+            <label class="layer-row">
+              <input type="checkbox" data-layer="roads" checked>
+              <span class="swatch road-swatch"></span>
+              <span class="layer-name">Routes</span>
+              <span class="count" id="road-layer-count">177</span>
+            </label>
+            <label class="layer-row">
+              <input type="checkbox" data-layer="districts" checked>
+              <span class="swatch district-swatch"></span>
+              <span class="layer-name">Arrondissements</span>
+              <span class="count" id="district-layer-count">2</span>
+            </label>
+            <label class="layer-row">
+              <input type="checkbox" data-layer="department" checked>
+              <span class="swatch department-swatch"></span>
+              <span class="layer-name">Département</span>
+              <span class="count">1</span>
+            </label>
+          </div>
+        </section>
+
+        <section class="sidebar-section legend-section">
+          <h3>Lecture de la carte</h3>
+          <div class="legend-grid">
+            <span><i class="legend-line primary"></i>Route principale</span>
+            <span><i class="legend-line track"></i>Piste</span>
+            <span><i class="legend-dot school"></i>École</span>
+            <span><i class="legend-dot locality"></i>Localité</span>
+          </div>
+        </section>
+
+        <footer class="sidebar-footer">
+          <p>Sources : données administratives du cours · écoles OpenStreetMap</p>
+          <p>Coordonnées : WGS 84 · EPSG:4326</p>
+        </footer>
+      </aside>
+
+      <section class="map-region" aria-label="Carte interactive du département de Diourbel">
+        <div id="map"></div>
+        <div class="loading-overlay" id="loading-overlay" role="status" aria-live="polite">
+          <span class="loading-spinner" aria-hidden="true"></span>
+          <strong>Chargement des cinq couches GeoJSON…</strong>
+        </div>
+        <button class="panel-toggle" id="panel-toggle" type="button" aria-expanded="true" aria-controls="sidebar">Couches</button>
+        <div class="map-note" id="map-note">
+          <span class="map-note-icon">i</span>
+          <span>Cliquez sur un objet pour consulter ses informations.</span>
+          <button type="button" aria-label="Fermer l’aide">×</button>
+        </div>
+        <div class="coordinates" id="coordinates">14.76890° N · 16.21631° O</div>
+      </section>
+    </main>
+  </div>
+
+  <dialog class="about-dialog" id="about-dialog">
+    <form method="dialog">
+      <button class="dialog-close" value="close" aria-label="Fermer">×</button>
+      <div class="dialog-mark">D</div>
+      <p class="eyebrow">Projet final · SIG Web</p>
+      <h2>Équipements scolaires de Diourbel</h2>
+      <dl>
+        <div><dt>Application</dt><dd>Gestion et exploration des équipements scolaires</dd></div>
+        <div><dt>Département</dt><dd>Diourbel</dd></div>
+        <div><dt>Auteur</dt><dd class="placeholder">Nom à compléter</dd></div>
+        <div><dt>Promotion</dt><dd>Licence 3 · 2025</dd></div>
+      </dl>
+      <p class="dialog-copy">L’application réunit les limites administratives, les localités, les routes et les établissements scolaires du département dans une seule interface cartographique.</p>
+      <button class="button button-primary" value="close">Retour à la carte</button>
+    </form>
+  </dialog>
+
+  <dialog class="about-dialog catalog-dialog" id="catalog-dialog">
+    <div class="dialog-panel">
+      <button class="dialog-close" id="catalog-close" type="button" aria-label="Fermer">×</button>
+      <div class="dialog-mark">C</div>
+      <p class="eyebrow">Catalogue des données</p>
+      <h2>Couches cartographiques</h2>
+      <p class="dialog-copy">Les cinq couches demandées sont découpées sur le département de Diourbel et enregistrées en GeoJSON, dans le système WGS 84.</p>
+      <div class="catalog-grid">
+        <article><span class="catalog-symbol department-swatch"></span><div><strong>Département</strong><small>Polygone · 1 entité</small></div></article>
+        <article><span class="catalog-symbol district-swatch"></span><div><strong>Arrondissements</strong><small>Polygones · 2 entités</small></div></article>
+        <article><span class="catalog-symbol locality-swatch"></span><div><strong>Localités</strong><small>Points · 384 entités</small></div></article>
+        <article><span class="catalog-symbol road-swatch"></span><div><strong>Routes</strong><small>Lignes · 177 tronçons</small></div></article>
+        <article><span class="catalog-symbol school-swatch">✦</span><div><strong>Écoles</strong><small>Points · 57 entités · fclass = school</small></div></article>
+      </div>
+      <div class="catalog-meta"><span>Format : GeoJSON</span><span>SCR : EPSG:4326</span><span>Zone : Diourbel</span></div>
+    </div>
+  </dialog>
+
+  <dialog class="about-dialog geocode-dialog" id="geocode-dialog">
+    <div class="dialog-panel">
+      <button class="dialog-close" id="geocode-close" type="button" aria-label="Fermer">×</button>
+      <div class="dialog-mark">G</div>
+      <p class="eyebrow">Géocodage</p>
+      <h2>Rechercher une adresse</h2>
+      <p class="dialog-copy">Saisissez une adresse, une localité ou un lieu au Sénégal. Sélectionnez ensuite un résultat pour le positionner sur la carte.</p>
+      <form class="geocode-form" id="geocode-form">
+        <label for="geocode-input">Adresse ou lieu</label>
+        <div class="geocode-row">
+          <input id="geocode-input" type="search" placeholder="Ex. Université de Diourbel" autocomplete="off" required minlength="3">
+          <button class="button button-primary" type="submit">Rechercher</button>
+        </div>
+      </form>
+      <div class="geocode-results" id="geocode-results" aria-live="polite"></div>
+      <p class="geocode-credit">Service de recherche : Nominatim · OpenStreetMap</p>
+    </div>
+  </dialog>
+
+  <dialog class="about-dialog download-dialog" id="download-dialog">
+    <div class="dialog-panel">
+      <button class="dialog-close" id="download-close" type="button" aria-label="Fermer">×</button>
+      <div class="dialog-mark">↓</div>
+      <p class="eyebrow">Téléchargement</p>
+      <h2>Données de Diourbel</h2>
+      <p class="dialog-copy">Téléchargez séparément les cinq couches GeoJSON utilisées par l’application.</p>
+      <div class="download-list">
+        <a href="data/departement.geojson" download><span><strong>Département</strong><small>Limite départementale</small></span><b>GeoJSON ↓</b></a>
+        <a href="data/arrondissements.geojson" download><span><strong>Arrondissements</strong><small>Ndindy et Ndoulo</small></span><b>GeoJSON ↓</b></a>
+        <a href="data/localites.geojson" download><span><strong>Localités</strong><small>384 points</small></span><b>GeoJSON ↓</b></a>
+        <a href="data/routes.geojson" download><span><strong>Routes</strong><small>177 tronçons</small></span><b>GeoJSON ↓</b></a>
+        <a href="data/ecoles.geojson" download><span><strong>Écoles</strong><small>57 établissements</small></span><b>GeoJSON ↓</b></a>
+      </div>
+    </div>
+  </dialog>
+
+  <script src="js/leaflet.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
